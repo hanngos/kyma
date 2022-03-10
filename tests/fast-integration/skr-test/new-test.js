@@ -1,5 +1,5 @@
 const {getEnvOrThrow} = require("../utils");
-const {gatherOptions, withInstanceID} = require('./');
+const {gatherOptions, withInstanceID, withOIDC0} = require('./');
 const {provisionSKR, deprovisionSKR} = require('../kyma-environment-broker');
 const {keb, gardener, director} = require('./helpers');
 const {initializeK8sClient} = require('../utils');
@@ -20,7 +20,7 @@ describe('Execute SKR test', function() {
 
   before('Provision SKR', async function() {
     try {
-      if (SKR_CLUSTER) {
+      if (!SKR_CLUSTER) {
         this.options = gatherOptions();
         console.log(`Provision SKR with instance ID ${this.options.instanceID}`);
         const customParams = {
@@ -39,7 +39,8 @@ describe('Execute SKR test', function() {
       this.shoot = await gardener.getShoot(getEnvOrThrow("SHOOT_NAME"));
 
       this.options = gatherOptions(
-          withInstanceID(getEnvOrThrow("INSTANCE_ID")))
+          withInstanceID(getEnvOrThrow("INSTANCE_ID")),
+          withOIDC0(this.shoot.oidcConfig))
     }
 
       const runtimeStatus = await kcp.getRuntimeStatusOperations(this.options.instanceID);

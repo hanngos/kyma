@@ -38,6 +38,12 @@ function withTestNS(testNS) {
   };
 }
 
+function withOIDC0(oidc0) {
+  return function (options) {
+    options.oidc0 = oidc0;
+  }
+}
+
 function gatherOptions(...opts) {
   const suffix = genRandom(4);
   // If no opts provided the options object will be set to these default values.
@@ -65,7 +71,7 @@ function gatherOptions(...opts) {
       usernameClaim: 'email',
       usernamePrefix: 'acme-',
     },
-    administrator0: getEnvOrThrow('KEB_USER_ID'),
+    administrator0: [getEnvOrThrow('KEB_USER_ID')],
     administrators1: ['admin1@acme.com', 'admin2@acme.com'],
   };
 
@@ -87,4 +93,5 @@ module.exports = {
   withRuntimeName,
   withScenarioName,
   withTestNS,
+  withOIDC0,
 };
