@@ -1,10 +1,13 @@
-const {gatherOptions} = require('./');
+const {getEnvOrThrow} = require("../utils");
+const {gatherOptions, withInstanceID} = require('./');
 const {provisionSKR, deprovisionSKR} = require('../kyma-environment-broker');
 const {keb, gardener, director} = require('./helpers');
 const {initializeK8sClient} = require('../utils');
 const {unregisterKymaFromCompass, addScenarioInCompass, assignRuntimeToScenario} = require('../compass');
 const {newOidcE2ETest, newCommerceMockTest} = require('./new-skr-test');
 const {KCPWrapper, KCPConfig} = require('../kcp/client');
+
+const SKR_CLUSTER = process.env.SKR_CLUSTER === "true";
 
 const kcp = new KCPWrapper(KCPConfig.fromEnv());
 
@@ -17,23 +20,31 @@ describe('Execute SKR test', function() {
 
   before('Provision SKR', async function() {
     try {
-      this.options = gatherOptions();
-      console.log(`Provision SKR with instance ID ${this.options.instanceID}`);
-      const customParams = {
-        oidc: this.options.oidc0,
-      };
-      const skr = await provisionSKR(keb, kcp, gardener,
-          this.options.instanceID,
-          this.options.runtimeName,
-          null,
-          null,
-          customParams,
-          provisioningTimeout);
+      if (SKR_CLUSTER) {
+        this.options = gatherOptions();
+        console.log(`Provision SKR with instance ID ${this.options.instanceID}`);
+        const customParams = {
+          oidc: this.options.oidc0,
+        };
+        const skr = await provisionSKR(keb, kcp, gardener,
+            this.options.instanceID,
+            this.options.runtimeName,
+            null,
+            null,
+            customParams,
+            provisioningTimeout);
+
+        this.shoot = skr.shoot;
+      } else {
+      this.shoot = await gardener.getShoot(getEnvOrThrow("SHOOT_NAME"));
+
+      this.options = gatherOptions(
+          withInstanceID(getEnvOrThrow("INSTANCE_ID")))
+    }
 
       const runtimeStatus = await kcp.getRuntimeStatusOperations(this.options.instanceID);
       console.log(`\nRuntime status after provisioning: ${runtimeStatus}`);
 
-      this.shoot = skr.shoot;
       await addScenarioInCompass(director, this.options.scenarioName);
       await assignRuntimeToScenario(director, this.shoot.compassID, this.options.scenarioName);
       initializeK8sClient({kubeconfig: this.shoot.kubeconfig});
@@ -50,7 +61,9 @@ describe('Execute SKR test', function() {
 
   after('Deprovision SKR', async function() {
     try {
-      await deprovisionSKR(keb, kcp, this.options.instanceID, deprovisioningTimeout);
+      if (!SKR_CLUSTER) {
+        await deprovisionSKR(keb, kcp, this.options.instanceID, deprovisioningTimeout);
+      }
     } catch (e) {
       throw new Error(`before hook failed: ${e.toString()}`);
     } finally {
