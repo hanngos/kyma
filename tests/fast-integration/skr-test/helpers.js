@@ -46,7 +46,7 @@ function gatherOptions(...opts) {
     runtimeName: `kyma-${suffix}`,
     appName: `app-${suffix}`,
     scenarioName: `test-${suffix}`,
-    testNS: 'skr-test',
+    testNS: `skr-test-${suffix}`,
     // These options are not meant to be rewritten apart from env variable for KEB_USER_ID
     // If that's needed please add separate function that overrides this field.
     oidc0: {
