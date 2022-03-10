@@ -27,7 +27,7 @@ const kcp = new KCPWrapper(KCPConfig.fromEnv());
 
 const updateTimeout = 1000 * 60 * 20; // 20m
 
-function oidcE2ETest() {
+function newOidcE2ETest() {
   describe('OIDC E2E Test', function() {
     it('Assure initial OIDC config is applied on shoot cluster', async function() {
       ensureValidShootOIDCConfig(this.shoot, this.options.oidc0);
@@ -109,9 +109,9 @@ function oidcE2ETest() {
   });
 }
 
-function commerceMockTest() {
+function newCommerceMockTest() {
   describe('CommerceMockTest()', function() {
-    const AWS_PLAN_ID = '361c511f-f939-4621-b228-d0fb79a1fe15';
+    //const AWS_PLAN_ID = '361c511f-f939-4621-b228-d0fb79a1fe15';
     let cancelPortForward = null;
     before(function() {
       cancelPortForward = prometheusPortForward();
@@ -143,22 +143,22 @@ function commerceMockTest() {
       await deleteMockTestFixture('mocks', this.options.testNS);
     });
 
-    // Check audit log for AWS
-    if (process.env.KEB_PLAN_ID === AWS_PLAN_ID) {
-      const auditlogs = new AuditLogClient(AuditLogCreds.fromEnv());
-
-      it('Check audit logs', async function() {
-        await checkAuditLogs(auditlogs);
-      });
-
-      it('Amount of audit events must not exceed a certain threshold', async function() {
-        await checkAuditEventsThreshold(4);
-      });
-    }
+    // // Check audit log for AWS
+    // if (process.env.KEB_PLAN_ID === AWS_PLAN_ID) {
+    //   const auditlogs = new AuditLogClient(AuditLogCreds.fromEnv());
+    //
+    //   it('Check audit logs', async function() {
+    //     await checkAuditLogs(auditlogs);
+    //   });
+    //
+    //   it('Amount of audit events must not exceed a certain threshold', async function() {
+    //     await checkAuditEventsThreshold(4);
+    //   });
+    // }
   });
 }
 
 module.exports = {
-  commerceMockTest,
-  oidcE2ETest,
+  newCommerceMockTest,
+  newOidcE2ETest,
 };

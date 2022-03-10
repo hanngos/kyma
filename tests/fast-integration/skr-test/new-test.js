@@ -3,7 +3,7 @@ const {provisionSKR, deprovisionSKR} = require('../kyma-environment-broker');
 const {keb, gardener, director} = require('./helpers');
 const {initializeK8sClient} = require('../utils');
 const {unregisterKymaFromCompass, addScenarioInCompass, assignRuntimeToScenario} = require('../compass');
-const {oidcE2ETest, commerceMockTest} = require('./skr-test');
+const {newOidcE2ETest, newCommerceMockTest} = require('./new-skr-test');
 const {KCPWrapper, KCPConfig} = require('../kcp/client');
 
 const kcp = new KCPWrapper(KCPConfig.fromEnv());
@@ -45,8 +45,8 @@ describe('Execute SKR test', function() {
     }
   });
 
-  oidcE2ETest();
-  commerceMockTest();
+  newOidcE2ETest();
+  newCommerceMockTest();
 
   after('Deprovision SKR', async function() {
     try {
