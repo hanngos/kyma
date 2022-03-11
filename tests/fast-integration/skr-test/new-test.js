@@ -18,7 +18,7 @@ describe('Execute SKR test', function() {
   const provisioningTimeout = 1000 * 60 * 30; // 30m
   const deprovisioningTimeout = 1000 * 60 * 95; // 95m
 
-  before('Provision SKR', async function() {
+  before('Provision SKR', async function () {
     try {
       if (!SKR_CLUSTER) {
         this.options = gatherOptions();
@@ -36,12 +36,12 @@ describe('Execute SKR test', function() {
 
         this.shoot = skr.shoot;
       } else {
-      this.shoot = await gardener.getShoot(getEnvOrThrow("SHOOT_NAME"));
+        this.shoot = await gardener.getShoot(getEnvOrThrow("SHOOT_NAME"));
 
-      this.options = gatherOptions(
-          withInstanceID(getEnvOrThrow("INSTANCE_ID")),
-          withOIDC0(this.shoot.oidcConfig))
-    }
+        this.options = gatherOptions(
+            withInstanceID(getEnvOrThrow("INSTANCE_ID")),
+            withOIDC0(this.shoot.oidcConfig))
+      }
 
       const runtimeStatus = await kcp.getRuntimeStatusOperations(this.options.instanceID);
       console.log(`\nRuntime status after provisioning: ${runtimeStatus}`);
@@ -60,7 +60,7 @@ describe('Execute SKR test', function() {
   newOidcE2ETest();
   newCommerceMockTest();
 
-  after('Deprovision SKR', async function() {
+  after('Deprovision SKR', async function () {
     try {
       if (!SKR_CLUSTER) {
         await deprovisionSKR(keb, kcp, this.options.instanceID, deprovisioningTimeout);
